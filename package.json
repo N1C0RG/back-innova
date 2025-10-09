@@ -1,0 +1,22 @@
+{
+  "name": "back-innova",
+  "version": "1.0.0",
+  "description": "backend del proyecto de innova grupo 42",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://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@github.com/N1C0RG/back-innova.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/N1C0RG/back-innova/issues"
+  },
+  "homepage": "https://github.com/N1C0RG/back-innova#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
