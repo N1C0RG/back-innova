@@ -1,6 +1,7 @@
 const express = require("express");
 const router = new express.Router();
 const { Op } = require('sequelize');
+const getResponse = require("../alert_controller.js");
 
 // Crear persona
 router.post('/', async(req, res) => {
@@ -75,6 +76,36 @@ router.get('/rut/:rut', async(req, res) => {
         }
         else{
             res.status(404).json({error: 'Person not found'});
+        }
+    }
+    catch(error){
+        console.log(error.message);
+        res.status(400).json({error: error.message});
+    }
+});
+
+// Consultar los antecedentes de una persona
+router.get('/record/:id', async(req, res) => {
+
+    const userRole = req.headers.Role;
+    try{
+        const person = await req.orm.Person.findByPk(req.params.id,
+            {include: [{
+                model: req.orm.Record,
+                as: 'Record',
+                include: [{
+                    model: req.orm.Crimes,
+                    as: 'Crime'
+                }]
+            }]}
+        );
+
+        const response = getResponse(userRole, person.Record);
+        if(response.responseType === 'complete'){
+            res.status(200).json(person.Record);
+        }
+        else{
+            res.status(200).json(response);
         }
     }
     catch(error){
