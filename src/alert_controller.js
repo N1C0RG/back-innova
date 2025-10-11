@@ -5,12 +5,20 @@ function getResponse(userRole, record){
         return response;
     }
     else{
-        const alertWeight = getAlertWeight(userRole, record)
-        response = {...response, 
-            alertType: getAlertMagnitude(alertWeight),
-            warnings: getWarnings(userRole, record)};
+        if(record == null){
+            response = {...response, 
+                alertType: "none",
+                warnings: []};
+        }
+        else{
+           const alertWeight = getAlertWeight(userRole, record)
+            response = {...response, 
+                alertType: getAlertMagnitude(alertWeight),
+                warnings: getWarnings(userRole, record)}; 
+        }
+        return response;
     }
-    return response;
+    
 };
 
 function getResponseType(role){
@@ -25,15 +33,18 @@ function getResponseType(role){
 function getAlertWeight(entity, record){
     let total_weight = 0;
     for(let i = 0; i < record.length; i++){
-        if(record.Crime.interested_entity === entity){
-            total_weight += record.Crime.weight;
+        if(record[i].Crime.interested_entity === entity){
+            total_weight += record[i].Crime.weight;
         }
     }
     return total_weight;
 };
 
 function getAlertMagnitude(total_weight){
-    if(total_weight < 2){
+    if(total_weight <= 0){
+        return null;
+    }
+    else if(total_weight < 2){
         return 'low';
     }
     else if(total_weight < 4){
@@ -47,8 +58,8 @@ function getAlertMagnitude(total_weight){
 function getWarnings(entity, record){
     let warnings = [];
     for(let i = 0; i < record.length; i++){
-        if(record.Crime.interested_entity === entity){
-            warnings.push(record.Crime.warning);
+        if(record[i].Crime.interested_entity === entity){
+            warnings.push(record[i].Crime.warning);
         }
     }
     return warnings;

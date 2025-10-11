@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       this.hasMany(
-        models.Record, {foreignKey: 'crimes_id'}
+        models.Record, {foreignKey: 'crime_id'}
       )
     }
   }

@@ -87,22 +87,20 @@ router.get('/rut/:rut', async(req, res) => {
 // Consultar los antecedentes de una persona
 router.get('/record/:id', async(req, res) => {
 
-    const userRole = req.headers.Role;
+    const userRole = req.headers.role;
     try{
-        const person = await req.orm.Person.findByPk(req.params.id,
+        const person = await req.orm.Persons.findByPk(req.params.id,
             {include: [{
                 model: req.orm.Record,
-                as: 'Record',
                 include: [{
-                    model: req.orm.Crimes,
-                    as: 'Crime'
+                    model: req.orm.Crimes
                 }]
             }]}
         );
 
-        const response = getResponse(userRole, person.Record);
+        const response = getResponse(userRole, person.Records);
         if(response.responseType === 'complete'){
-            res.status(200).json(person.Record);
+            res.status(200).json(person);
         }
         else{
             res.status(200).json(response);
