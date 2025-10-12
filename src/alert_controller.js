@@ -1,4 +1,5 @@
 function getResponse(userRole, record){
+    console.log('getResponse', userRole, record);
     let response = {};
     response.responseType = getResponseType(userRole);
     if(response.responseType === 'complete'){

@@ -88,6 +88,7 @@ router.get('/rut/:rut', async(req, res) => {
 router.get('/record/:id', async(req, res) => {
 
     const userRole = req.headers.role;
+    console.log("User role: " + userRole);
     try{
         const person = await req.orm.Persons.findByPk(req.params.id,
             {include: [{
@@ -99,6 +100,7 @@ router.get('/record/:id', async(req, res) => {
         );
 
         const response = getResponse(userRole, person.Records);
+        console.log(response);
         if(response.responseType === 'complete'){
             res.status(200).json(person);
         }
