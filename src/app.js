@@ -15,8 +15,13 @@ app.use((req, res, next) => {
 
 app.use(router);
 
+app.use((req, res) => {
+  res.status(404).send('Ruta no encontrada');
+});
+
 app.use((err, req, res, next) => {
-    res.status(404).send('ruta no encontrada');
+  console.error('Error interno:', err);
+  res.status(500).send('Error interno del servidor');
 });
 
 module.exports = app;
