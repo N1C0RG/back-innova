@@ -1,0 +1,45 @@
+services:
+  app: 
+    build: . 
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - .env
+    depends_on:
+      postgres: 
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+    command: sh -c "sleep 10 && npx sequelize-cli db:migrate && npm start" 
+
+  postgres: 
+    image: postgres:18-alpine
+    env_file:
+      - .env
+    ports:
+      - "5433:5433"
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes: 
+      - postgres_data:/var/lib/postgresql/data
+    networks: 
+      - app-network
+    healthcheck: 
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s 
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge
