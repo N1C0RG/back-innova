@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const router = require('./router.js');
 const orm = require('./models');
+const cookieParser = require('cookie-parser'); 
 
 const app = express();
 
@@ -12,6 +13,8 @@ app.use((req, res, next) => {
     req.orm = orm;
     next();
 });
+
+app.use(cookieParser()); 
 
 app.use(router);
 

@@ -1,10 +1,5 @@
 const jwt = require('jsonwebtoken'); 
 
-// function getJwtTokenScope(token) { 
-//     var data = jwt.verify(jwtToken, process.env.JWT_SECRET); 
-//     return data.scope;
-// }
-
 function requiereAuth(req, res, next) { 
     const auth = req.headers.authorization || ''; 
     const [header, jwtToken] = auth.split(' '); 
@@ -14,7 +9,7 @@ function requiereAuth(req, res, next) {
     }
 
     try { 
-        const data = jwt.verify(jwtToken, process.env.JWT_SECRET); 
+        const data = jwt.verify(jwtToken, process.env.ACCESS_TOKEN_SECRET); 
         req.user = { username: data.username, email: data.email }; 
         return next(); 
     } catch(err) { 

@@ -4,12 +4,19 @@ const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
 const dotenv = require('dotenv'); 
+const { now } = require("sequelize/lib/utils");
 
-const singInJwtToken = (user) => { 
+const createAccessToken = (user) => { 
     const data = { username: user.username, email: user.email }; 
-    const expirationDate = { expiresIn: process.env.JWT_EXPIRATION || '1h'}; 
-    return jwt.sign(data, process.env.JWT_SECRET, expirationDate); 
+    const expirationDate = { expiresIn: process.env.ACCESS_TOKEN_EXPIRATION || '15m'}; 
+    return jwt.sign(data, process.env.ACCESS_TOKEN_SECRET, expirationDate); 
 }; 
+
+const createRefreshToken = (user) => { 
+    const data = { username: user.username, email: user.email }; 
+    const expirationDate = { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION || '7h'}; 
+    return jwt.sign(data, process.env.REFRESH_TOKEN_SECRET, expirationDate); 
+}
 
 router.post('/signup', async(req, res) => { 
     try { 
@@ -32,16 +39,19 @@ router.post('/signup', async(req, res) => {
             password: hashedUserPassword,
         }); 
 
-        const jwtToken = singInJwtToken(user); 
+        const accessTokenValue = createAccessToken(user); 
 
-        return res.status(201).json({ 
-            message: 'usuario creado exitosamente', 
-            jwtToken, 
-            user: { 
-                username: user.username, 
-                email: user.email, 
-            }, 
-        }); 
+        const refreshTokenValue = createRefreshToken(user); 
+
+        await req.orm.RefreshToken.create({
+            token: refreshTokenValue, 
+            userId: user.id, 
+            expiryDate: new Date(Date.now() + 7 * 60 * 60 * 1000) //7 horas 
+        })
+
+        res.cookie('refreshToken', refreshTokenValue, { httpOnly: true, secure: true , maxAge: 7 * 60 * 60 * 1000});
+        res.json({ accessTokenValue, user });
+
     } catch(err) { 
         return res.status(500).json({ error: err.message }); 
     }
@@ -62,16 +72,17 @@ router.post('/login', async (req, res) => {
             return res.status(200).json({ error: 'credenciales invalidas'})
         }
 
-        const jwtToken = singInJwtToken(user); 
+        const accessTokenValue = createAccessToken(user); 
+        const refreshTokenValue = createRefreshToken(user); 
 
-        return res.status(200).json({ 
-            message: 'login exitoso', 
-            jwtToken, 
-            user: { 
-                username: user.username, 
-                email: user.email, 
-            }, 
-        }); 
+        await req.orm.RefreshToken.create({
+            token: refreshTokenValue, 
+            userId: user.id, 
+            expiryDate: new Date(Date.now() + 7 * 60 * 60 * 1000) //7 horas 
+        })
+
+        res.cookie('refreshToken', refreshTokenValue, { httpOnly: true, secure: true , maxAge: 7 * 60 * 60 * 1000});
+        res.json({ accessTokenValue, user })
 
     } catch(err) { 
         return res.status(400).json({ error: err.message }); 
