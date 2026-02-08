@@ -39,7 +39,7 @@ router.post('/signup', async(req, res) => {
             password: hashedUserPassword,
         }); 
 
-        const accessTokenValue = createAccessToken(user); 
+        const accessToken = createAccessToken(user); 
 
         const refreshTokenValue = createRefreshToken(user); 
 
@@ -50,7 +50,7 @@ router.post('/signup', async(req, res) => {
         })
 
         res.cookie('refreshToken', refreshTokenValue, { httpOnly: true, secure: true , maxAge: 7 * 60 * 60 * 1000});
-        res.json({ accessTokenValue, user });
+        res.json({ accessToken, user });
 
     } catch(err) { 
         return res.status(500).json({ error: err.message }); 
@@ -72,7 +72,7 @@ router.post('/login', async (req, res) => {
             return res.status(200).json({ error: 'credenciales invalidas'})
         }
 
-        const accessTokenValue = createAccessToken(user); 
+        const accessToken = createAccessToken(user); 
         const refreshTokenValue = createRefreshToken(user); 
 
         await req.orm.RefreshToken.create({
@@ -82,7 +82,7 @@ router.post('/login', async (req, res) => {
         })
 
         res.cookie('refreshToken', refreshTokenValue, { httpOnly: true, secure: true , maxAge: 7 * 60 * 60 * 1000});
-        res.json({ accessTokenValue, user })
+        res.json({ accessToken, user })
 
     } catch(err) { 
         return res.status(400).json({ error: err.message }); 
